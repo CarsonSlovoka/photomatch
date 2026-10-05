@@ -1,0 +1,18 @@
+# 照片 GPS 點位比對。程式讀這份檔，不需要介面。
+# 複製成 config.yaml 後修改路徑即可。
+
+input:
+  points: ./examples/points.csv   # 點位 CSV，需含下方三個欄位
+  photos: ./photos                # 只掃這一層的 .jpg / .jpeg，不含子資料夾
+  lat_column: 緯度N
+  lon_column: 經度E
+  name_column: 井址
+
+output:
+  dir: ./out                      # 複製後的照片放這裡；重跑會覆蓋同名檔
+  report: ./out/結果.csv          # 比對報表，UTF-8 含 BOM，Excel 可直接開
+  log: ./out/skip.log             # 檔名不合法或讀取失敗時寫這裡，該張照片不處理
+
+match:
+  radius_m: 100                   # 判定半徑（公尺）。可用 -radius 暫時覆寫
+  rule: prefix                    # prefix | suffix | replace | folder
