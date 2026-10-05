@@ -6,3 +6,5 @@ coverage.out
 config.yaml
 
 photos/
+
+*.zip
