@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>photomatch 地圖核對</title>
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+  <style>
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      color: #1c1917;
+    }
+
+    body {
+      display: flex;
+      min-height: 100%;
+    }
+
+    #side {
+      width: 320px;
+      flex: 0 0 320px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #e7e5e4;
+      background: #fafaf9;
+    }
+
+    #side header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid #e7e5e4;
+    }
+
+    #side h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    #side p {
+      margin: 6px 0 0;
+      font-size: 12px;
+      color: #57534e;
+      line-height: 1.45;
+    }
+
+    #list {
+      overflow: auto;
+      flex: 1;
+    }
+
+    .item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 0;
+      border-bottom: 1px solid #e7e5e4;
+      background: transparent;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+
+    .item:hover,
+    .item.active {
+      background: #f5f5f4;
+    }
+
+    .item .path {
+      font-size: 13px;
+      word-break: break-all;
+    }
+
+    .item .meta {
+      margin-top: 3px;
+      font-size: 12px;
+      color: #78716c;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .ok {
+      background: #1f7a4d;
+    }
+
+    .far {
+      background: #d9822b;
+    }
+
+    #map {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .maplibregl-popup-content {
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+
+    .popup img {
+      display: block;
+      width: 280px;
+      max-width: 70vw;
+      height: auto;
+      border-radius: 4px;
+      background: #e7e5e4;
+    }
+
+    .popup .path {
+      margin: 8px 0 0;
+      font-size: 13px;
+      font-weight: 650;
+      word-break: break-all;
+    }
+
+    .popup .meta {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: #57534e;
+    }
+
+    .popup a {
+      color: #1d4ed8;
+    }
+
+    #empty {
+      padding: 16px;
+      color: #57534e;
+      font-size: 14px;
+    }
+
+    @media (max-width: 800px) {
+      body {
+        flex-direction: column;
+      }
+
+      #side {
+        width: auto;
+        flex-basis: 38vh;
+        border-right: 0;
+        border-bottom: 1px solid #e7e5e4;
+      }
+
+      #map {
+        min-height: 62vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <aside id="side">
+    <header>
+      <h1>照片位置</h1>
+      <p>只顯示有 GPS 的照片。名稱用輸出路徑，不顯示井址。點清單或地圖上的點可看縮圖。</p>
+    </header>
+    <div id="list"></div>
+  </aside>
+  <div id="map"></div>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script>
+    const photos = __PHOTOS_JSON__;
+    const list = document.getElementById('list');
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: {
+        version: 8,
+        sources: {
+          osm: {
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            attribution: '&copy; OpenStreetMap contributors'
+          }
+        },
+        layers: [{id: 'osm', type: 'raster', source: 'osm'}]
+      },
+      center: [121.5, 25.0],
+      zoom: 6
+    });
+    map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+    function popupHTML(p) {
+      const img = p.thumb ? '<img src="' + p.thumb + '" alt="">' : '<div class="meta">縮圖失敗，仍可開原圖</div>';
+      const dist = p.distance ? p.distance + ' m' : '—';
+      return '<div class="popup">' + img +
+        '<div class="path">' + escapeHTML(p.output) + '</div>' +
+        '<div class="meta">' + escapeHTML(p.status) + ' · 距離 ' + escapeHTML(dist) + '<br>原始檔名 ' + escapeHTML(p.original) +
+        '<br>' + p.lat.toFixed(6) + ', ' + p.lon.toFixed(6) +
+        '<br><a href="' + p.full + '" target="_blank" rel="noopener">開啟輸出檔</a></div></div>';
+    }
+    function escapeHTML(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return ({'&': '&', '<': '<', '>': '>', '"': '"', "'": '&#39;'})[c];
+      });
+    }
+    const markers = photos.map(function (p, i) {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.title = p.output;
+      el.style.cssText = 'width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35);padding:0;cursor:pointer;background:' + (p.status === '超出距離' ? '#d9822b' : '#1f7a4d');
+      const marker = new maplibregl.Marker({element: el}).setLngLat([p.lon, p.lat]).addTo(map);
+      const popup = new maplibregl.Popup({offset: 16, maxWidth: '320px'}).setHTML(popupHTML(p));
+      marker.setPopup(popup);
+      el.addEventListener('click', function () {activate(i);});
+      return {marker: marker, popup: popup};
+    });
+
+    photos.forEach(function (p, i) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'item';
+      btn.innerHTML = '<div class="path"><span class="dot ' + (p.status === '超出距離' ? 'far' : 'ok') + '"></span>' + escapeHTML(p.output) + '</div>' +
+        '<div class="meta">' + escapeHTML(p.status) + (p.distance ? ' · ' + escapeHTML(p.distance) + ' m' : '') + '</div>';
+      btn.addEventListener('click', function () {activate(i, true);});
+      list.appendChild(btn);
+    });
+    if (!photos.length) {
+      list.innerHTML = '<div id="empty">這次沒有可標在地圖上的照片。</div>';
+    }
+
+    function activate(i, fly) {
+      document.querySelectorAll('.item').forEach(function (el, n) {el.classList.toggle('active', n === i);});
+      const p = photos[i];
+      if (fly) map.flyTo({center: [p.lon, p.lat], zoom: Math.max(map.getZoom(), 16)});
+      markers[i].popup.setLngLat([p.lon, p.lat]).addTo(map);
+      const btn = list.children[i];
+      if (btn && btn.scrollIntoView) btn.scrollIntoView({block: 'nearest'});
+    }
+    map.on('load', function () {
+      if (!photos.length) return;
+      const bounds = new maplibregl.LngLatBounds();
+      photos.forEach(function (p) {bounds.extend([p.lon, p.lat]);});
+      map.fitBounds(bounds, {padding: 48, maxZoom: 16});
+    });
+  </script>
+</body>
+
+</html>
