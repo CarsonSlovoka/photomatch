@@ -23,7 +23,7 @@ match:
   rule: prefix   # prefix | suffix | replace | folder
 ```
 
-點位檔不是 Excel, 可從 Excel 另存時選 CSV UTF-8。
+無 GPS 複製到 `未歸類_無GPS/`。超出半徑複製到 `未歸類_超出距離/`。井址若含 `\ / : * ? " < > |`、控制字元、結尾空白或句點、或是 `CON` / `COM1` 這類保留字，該張不複製，原因寫進 `skip.log`
 
 分隔符預設`逗號`；Tab 分隔可設 `delimiter: tab`，直條可設 `delimiter: "|"`。省略時為逗號。
 
@@ -50,4 +50,18 @@ make test
 ```
 
 Windows 可執行檔：`make build-windows`，產出 `bin/photomatch.exe`
+
+## 地圖
+
+跑完會在輸出資料夾寫 `map/index.html` 和縮圖。只標有 GPS 的照片，包含超出距離；沒有 GPS 的不上圖。點標記或左側清單會跳出縮圖，名稱用輸出相對路徑，不顯示井址。
+
+圖磚用 OpenStreetMap，需要網路，頁面上保留出處。這是給本機核對用，不要把這個位址拿去對外服務。
+
+```bash
+./bin/photomatch -config config.yaml -serve
+./bin/photomatch -config config.yaml -serve -port 8765
+```
+
+瀏覽器打開印出的 `http://127.0.0.1:8765/map/`。不加 `-serve` 也會寫出地圖檔，只是不會開伺服器。
+
 
