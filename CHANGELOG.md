@@ -5,6 +5,26 @@
 - 此格式基於 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - 本計畫遵循 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0] - 2026-10-06
+
+目前發行版
+
+### Added
+
+- `-V` 與 `--version`：印出版號後結束。未覆寫時為 `0.1.0`；建置可用 `-X main.version` 注入，發行標籤會去掉開頭的 `v`
+- 點位分隔符 `input.delimiter`。預設逗號。可設單一字元，或 `comma`、`tab`／`tsv`、`pipe`、`semicolon`；字面 `\t` 也視為定位字元。換行不能當分隔符
+- 每次執行後在輸出資料夾寫地圖核對頁 `map/index.html` 與縮圖 `map/thumbs/`。沒有可標的照片也會寫一頁說明
+- `-serve`：跑完後只綁 `127.0.0.1` 提供輸出資料夾。預設埠 `8765`，可用 `-port` 改（1–65535）。瀏覽器開印出的 `http://127.0.0.1:8765/map/`。不加 `-serve` 仍會寫地圖檔
+- 地圖只標有 GPS、且已複製出去的照片（成功、超出距離）。清單與彈出視窗用輸出相對路徑，不顯示井址；含縮圖、狀態、距離、原始檔名、座標，可開輸出檔
+- 縮圖依 EXIF Orientation 轉正，長邊最多 480、JPEG 品質 75。縮圖失敗仍保留該點
+- 圖磚為 OpenStreetMap，經 MapLibre GL 顯示，頁面保留出處。給本機核對，不要把位址拿去對外服務
+- 頁面範本 `internal/mapview/index.html`，以 `go:embed` 嵌入；照片 JSON 取代 `__PHOTOS_JSON__`
+
+### Changed
+
+- 點位檔改為分隔文字，不再限逗號 CSV。從 Excel 另存時仍用 CSV UTF-8。報表維持逗號 CSV、UTF-8 含 BOM
+- 結束時一併印出地圖路徑；未加 `-serve` 時提示如何開本機頁面
+
 ## [0.0.0] - 2026-10-05
 
 ### Added

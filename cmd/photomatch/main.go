@@ -13,7 +13,7 @@ import (
 )
 
 // version 可由建置時的 -X main.version 覆寫。未覆寫時與目前發行版號相同
-var version = "0.0.0"
+var version = "0.1.0"
 
 func main() {
 	os.Exit(run(os.Args[1:]))

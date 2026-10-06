@@ -2,7 +2,7 @@
 
 BINARY := bin/photomatch
 CMD := ./cmd/photomatch
-VERSION ?= 0.0.0
+VERSION ?= 0.1.0
 LDFLAGS := -X main.version=$(VERSION)
 
 build:
