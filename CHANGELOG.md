@@ -5,6 +5,14 @@
 - 此格式基於 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - 本計畫遵循 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `make cover`：以 `-covermode=atomic` 產出 `coverage.out`，印出各函式覆蓋率，語句總覆蓋率低於 `COVER_MIN`（預設 60）則失敗。可覆寫，例如 `make cover COVER_MIN=70`
+- `make ci` 改為依序執行 `vet`、`cover`、`build`。GitHub Actions 的測試步驟改跑 `make cover`，並上傳 `coverage.out`
+- `make build-mac`：只交叉編譯 Apple Silicon（`darwin/arm64`），產出 `bin/photomatch-darwin-arm64`。不含 Intel
+
 ## [0.1.0] - 2026-10-06
 
 目前發行版

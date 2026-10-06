@@ -47,9 +47,15 @@ make build
 ./bin/photomatch -V
 ./bin/photomatch --version
 make test
+make cover
+make build-mac
 ```
 
 Windows 可執行檔：`make build-windows`，產出 `bin/photomatch.exe`
+
+Apple Silicon：`make build-mac`，只建 `darwin/arm64`，產出 `bin/photomatch-darwin-arm64`
+
+`make cover` 會跑測試並寫 `coverage.out`。語句總覆蓋率低於 60% 會失敗；門檻可改，例如 `make cover COVER_MIN=70`。`make ci` 會跑 vet、覆蓋率檢查與建置
 
 ## 地圖
 

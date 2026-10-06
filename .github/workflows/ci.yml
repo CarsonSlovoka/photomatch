@@ -20,7 +20,14 @@ jobs:
           cache: true
       - name: Vet
         run: go vet ./...
-      - name: Test
-        run: go test -count=1 ./...
+      - name: Test with coverage
+        run: make cover
       - name: Build
         run: go build -trimpath -ldflags "-X main.version=0.1.0" -o bin/photomatch ./cmd/photomatch
+      - name: Upload coverage profile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+          if-no-files-found: ignore

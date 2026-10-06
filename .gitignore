@@ -3,6 +3,7 @@ out/
 *.exe
 *.test
 coverage.out
+coverage.html
 config.yaml
 
 photos/
