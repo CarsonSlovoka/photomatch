@@ -39,6 +39,8 @@ match:
 make build
 ./bin/photomatch -config config.yaml
 ./bin/photomatch -config config.yaml -radius 50
+./bin/photomatch -V
+./bin/photomatch --version
 make test
 ```
 

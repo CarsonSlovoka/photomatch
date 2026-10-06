@@ -23,4 +23,4 @@ jobs:
       - name: Test
         run: go test -count=1 ./...
       - name: Build
-        run: go build -trimpath -o bin/photomatch ./cmd/photomatch
+        run: go build -trimpath -ldflags "-X main.version=0.0.0" -o bin/photomatch ./cmd/photomatch

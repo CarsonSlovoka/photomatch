@@ -11,6 +11,9 @@ import (
 	"github.com/CarsonSlovoka/photomatch/internal/pipeline"
 )
 
+// version 可由建置時的 -X main.version 覆寫。未覆寫時與目前發行版號相同
+var version = "0.0.0"
+
 func main() {
 	os.Exit(run(os.Args[1:]))
 }
@@ -20,12 +23,18 @@ func run(args []string) int {
 	fs.SetOutput(os.Stderr)
 	configPath := fs.String("config", "config.yaml", "設定檔路徑")
 	radius := fs.String("radius", "", "覆寫判定半徑（公尺）；省略則用設定檔")
+	showVersion := fs.Bool("version", false, "印出版號後結束")
+	fs.BoolVar(showVersion, "V", false, "印出版號後結束")
 	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, "用法: photomatch [-config 設定檔] [-radius 公尺]\n\n")
+		fmt.Fprintf(os.Stderr, "用法: photomatch [-config 設定檔] [-radius 公尺] [-V]\n\n")
 		fs.PrintDefaults()
 	}
 	if err := fs.Parse(args); err != nil {
 		return 2
+	}
+	if *showVersion {
+		fmt.Printf("photomatch %s\n", version)
+		return 0
 	}
 
 	cfg, err := config.Load(*configPath)
