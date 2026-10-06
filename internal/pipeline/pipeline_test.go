@@ -11,6 +11,18 @@ import (
 	"github.com/CarsonSlovoka/photomatch/internal/config"
 )
 
+func TestReadPointsPipe(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "points.txt")
+	writeFile(t, path, "井址|緯度N|經度E\nW-01|25.033000|121.565400\n")
+	points, err := readPoints(path, "|", "緯度N", "經度E", "井址")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(points) != 1 || points[0].Name != "W-01" || points[0].Lat != 25.033 {
+		t.Fatalf("點位不對: %+v", points)
+	}
+}
+
 func TestHaversineSample(t *testing.T) {
 	// 與先前範例相同：W-01 對 IMG_1001 約 14.9 公尺。
 	d := haversine(25.033090, 121.565510, 25.033000, 121.565400)

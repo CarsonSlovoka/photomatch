@@ -10,6 +10,7 @@
 input:
   points: ./examples/points.csv
   photos: ./photos
+  delimiter: ","       # 預設逗號。可改成 "|"、";"、tab，或單一字元
   lat_column: 緯度N
   lon_column: 經度E
   name_column: 井址
@@ -22,7 +23,11 @@ match:
   rule: prefix   # prefix | suffix | replace | folder
 ```
 
-點位檔是 CSV，不是 Excel。從 Excel 另存時選 CSV UTF-8。只掃照片資料夾的第一層，副檔名 `.jpg` / `.jpeg`
+點位檔不是 Excel, 可從 Excel 另存時選 CSV UTF-8。
+
+分隔符預設`逗號`；Tab 分隔可設 `delimiter: tab`，直條可設 `delimiter: "|"`。省略時為逗號。
+
+只掃照片資料夾的第一層，副檔名 `.jpg` / `.jpeg`
 
 命名規則：
 

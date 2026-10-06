@@ -35,6 +35,10 @@ match:
 	if cfg.Match.RadiusM != 100 {
 		t.Fatalf("radius = %v", cfg.Match.RadiusM)
 	}
+	comma, err := ParseDelimiter(cfg.Input.Delimiter)
+	if err != nil || comma != ',' {
+		t.Fatalf("預設分隔符 = %q, err = %v", cfg.Input.Delimiter, err)
+	}
 }
 
 func TestRejectBadRule(t *testing.T) {
@@ -49,5 +53,38 @@ func TestRejectBadRule(t *testing.T) {
 	cfg.Match.Rule = "nope"
 	if err := cfg.Validate(); err == nil {
 		t.Fatal("預期拒絕未知規則")
+	}
+}
+
+func TestParseDelimiter(t *testing.T) {
+	cases := []struct {
+		in   string
+		want rune
+		bad  bool
+	}{
+		{"", ',', false},
+		{",", ',', false},
+		{"comma", ',', false},
+		{"|", '|', false},
+		{"pipe", '|', false},
+		{"tab", '\t', false},
+		{`\t`, '\t', false},
+		{";", ';', false},
+		{"semicolon", ';', false},
+		{"/", '/', false},
+		{"||", 0, true},
+		{"comma,", 0, true},
+	}
+	for _, tc := range cases {
+		got, err := ParseDelimiter(tc.in)
+		if tc.bad {
+			if err == nil {
+				t.Errorf("%q 應該被拒絕", tc.in)
+			}
+			continue
+		}
+		if err != nil || got != tc.want {
+			t.Errorf("ParseDelimiter(%q) = %q, %v，預期 %q", tc.in, got, err, tc.want)
+		}
 	}
 }

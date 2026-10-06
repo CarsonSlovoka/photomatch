@@ -73,7 +73,7 @@ func Run(opt Options) (Summary, error) {
 		return Summary{}, err
 	}
 
-	points, err := readPoints(cfg.Input.Points, cfg.Input.LatColumn, cfg.Input.LonColumn, cfg.Input.NameColumn)
+	points, err := readPoints(cfg.Input.Points, cfg.Input.Delimiter, cfg.Input.LatColumn, cfg.Input.LonColumn, cfg.Input.NameColumn)
 	if err != nil {
 		return Summary{}, err
 	}
@@ -270,13 +270,18 @@ func listPhotos(dir string) ([]string, error) {
 	return names, nil
 }
 
-func readPoints(path, latCol, lonCol, nameCol string) ([]Point, error) {
+func readPoints(path, delimiter, latCol, lonCol, nameCol string) ([]Point, error) {
+	comma, err := config.ParseDelimiter(delimiter)
+	if err != nil {
+		return nil, err
+	}
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("讀取點位 CSV: %w", err)
 	}
 	defer f.Close()
 	r := csv.NewReader(f)
+	r.Comma = comma
 	r.FieldsPerRecord = -1
 	records, err := r.ReadAll()
 	if err != nil {

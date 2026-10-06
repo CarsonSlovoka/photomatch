@@ -2,8 +2,9 @@
 # 複製成 config.yaml 後修改路徑即可。
 
 input:
-  points: ./examples/points.csv   # 點位 CSV，需含下方三個欄位
+  points: ./examples/points.csv   # 點位檔，需含下方三個欄位
   photos: ./photos                # 只掃這一層的 .jpg / .jpeg，不含子資料夾
+  delimiter: ","                  # 預設逗號。可改成 "|"、";"、"tab"、"tsv"、\t，或單一字元
   lat_column: 緯度N
   lon_column: 經度E
   name_column: 井址
